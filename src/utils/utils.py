@@ -184,11 +184,27 @@ def persistance(model):
     df =  df.sort_values('Persistance', ascending=False)
     return df.loc[df.Persistance > 0.1].reset_index().drop(columns='index')
 
-def clusters_anomalias(datos, countries=None):
+def clusters_anomalias(datos, countries=None, init=None, end=None):
+    def cluster_bydate(df, init, end):
+        cluster_list = [-1]
+        for cluster in range(52):
+            matrix = df.loc[df.CLUSTER == cluster].describe().T
+            init_season, end_season = matrix.loc[matrix.index == 'DAY_YEAR', ['25%', '75%']].T.DAY_YEAR
+
+            if init < int(init_season) and int(end_season) < end:
+                cluster_list.append(cluster)
+        return df.loc[df.CLUSTER.isin(cluster_list)]
+
     fig, ax = plt.subplots(1,2, figsize=(15, 10))
 
     clusters = datos.loc[datos.CLUSTER != -1]
     anomalias= datos.loc[datos.CLUSTER == -1]
+
+    if init is not None and end is not None:
+        datos = cluster_bydate(datos, init, end)
+        clusters = datos.loc[datos.CLUSTER != -1]
+        anomalias= datos.loc[datos.CLUSTER == -1]
+        anomalias = anomalias.loc[anomalias.DAY_YEAR.between(init, end)]
 
     sns.scatterplot(clusters, x='LON', y='LAT', hue='CLUSTER', edgecolor='none', palette='Spectral', ax=ax[0], legend=False)
     sns.scatterplot(anomalias, x='LON', y='LAT', hue='CLUSTER', edgecolor='none', palette='Spectral', ax=ax[1], legend=False)
