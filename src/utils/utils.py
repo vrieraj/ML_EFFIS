@@ -203,7 +203,7 @@ def clusters_anomalias(datos, countries=None):
         ax[n].set_xlabel('')
 
         # Agregamos el shapefile directamente desde geopandas
-        if countries:
+        if countries is not None:
             countries.plot(ax=ax[n], color='none', edgecolor='k', alpha=0.5)
         
     fig.tight_layout;
@@ -226,8 +226,8 @@ def detalle_cluster(model, datos, cluster, countries=None):
     ax0.grid()
     for spine in ax0.spines.values():
         spine.set_visible(False)    
-    if countries:
-        countries.plot(ax=ax0, color='none', edgecolor='k', alpha=0.5)
+        if countries is not None:
+            countries.plot(ax=ax0, color='none', edgecolor='k', alpha=0.5)
 
     # Subgrid con 3 filas para los boxplots horizontales
     gs_right = gridspec.GridSpecFromSubplotSpec(3, 1, subplot_spec=gs[1])
